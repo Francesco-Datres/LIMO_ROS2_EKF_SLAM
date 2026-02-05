@@ -1,0 +1,6 @@
+source;share/mio_primo_pkg/hook/pythonpath.ps1
+source;share/mio_primo_pkg/hook/pythonpath.dsv
+source;share/mio_primo_pkg/hook/pythonpath.sh
+source;share/mio_primo_pkg/hook/ament_prefix_path.ps1
+source;share/mio_primo_pkg/hook/ament_prefix_path.dsv
+source;share/mio_primo_pkg/hook/ament_prefix_path.sh

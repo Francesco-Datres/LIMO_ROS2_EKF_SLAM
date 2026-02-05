@@ -1,0 +1,5 @@
+  File "/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/simulatore.py", line 7
+    from .kalman_filter import * import pyfiglet
+                                 ^^^^^^
+SyntaxError: invalid syntax
+

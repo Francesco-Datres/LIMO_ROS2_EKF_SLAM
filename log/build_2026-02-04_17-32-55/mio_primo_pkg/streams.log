@@ -1,0 +1,41 @@
+[0.801s] Invoking command in '/home/francesco/LIMO_prj/src/mio_primo_pkg': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data
+[1.038s] running egg_info
+[1.039s] writing ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/PKG-INFO
+[1.043s] writing dependency_links to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/dependency_links.txt
+[1.043s] writing entry points to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/entry_points.txt
+[1.043s] writing requirements to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/requires.txt
+[1.044s] writing top-level names to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/top_level.txt
+[1.048s] reading manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[1.050s] writing manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[1.050s] running build
+[1.050s] running build_py
+[1.053s] copying mio_primo_pkg/test_qr.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.053s] copying mio_primo_pkg/simulatore_old.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.054s] copying mio_primo_pkg/simulatore_real.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.055s] copying mio_primo_pkg/QRGen.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.056s] copying mio_primo_pkg/kalman_filter.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.057s] copying mio_primo_pkg/simulatore.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[1.057s] running install
+[1.058s] running install_lib
+[1.060s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/test_qr.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.061s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/simulatore_old.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.061s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/simulatore_real.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.062s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/QRGen.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.062s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/kalman_filter.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.062s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/simulatore.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[1.063s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/test_qr.py to test_qr.cpython-310.pyc
+[1.064s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/simulatore_old.py to simulatore_old.cpython-310.pyc
+[1.066s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/simulatore_real.py to simulatore_real.cpython-310.pyc
+[1.068s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/QRGen.py to QRGen.cpython-310.pyc
+[1.069s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/kalman_filter.py to kalman_filter.cpython-310.pyc
+[1.070s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/simulatore.py to simulatore.cpython-310.pyc
+[1.071s] running install_data
+[1.072s] copying package.xml -> /home/francesco/LIMO_prj/install/mio_primo_pkg/share/mio_primo_pkg
+[1.072s] running install_egg_info
+[1.074s] removing '/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[1.074s] Copying ../../build/mio_primo_pkg/mio_primo_pkg.egg-info to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info
+[1.075s] running install_scripts
+[1.095s] Installing avvia_simulazione script to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/mio_primo_pkg
+[1.095s] Installing esegui_prova script to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/mio_primo_pkg
+[1.096s] writing list of installed files to '/home/francesco/LIMO_prj/build/mio_primo_pkg/install.log'
+[1.116s] Invoked command in '/home/francesco/LIMO_prj/src/mio_primo_pkg' returned '0': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data

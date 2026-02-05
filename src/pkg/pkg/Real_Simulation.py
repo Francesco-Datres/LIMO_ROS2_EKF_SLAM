@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+import rclpy.time
+
+# Messaggi ROS standard
+from sensor_msgs.msg import Image, CameraInfo
+from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped, PointStamped, PoseStamped
+from visualization_msgs.msg import Marker, MarkerArray
+
+# Librerie TF2
+import tf2_ros
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+import tf2_geometry_msgs 
+from tf_transformations import quaternion_from_euler 
+
+# Librerie calcolo
+import numpy as np
+import cv2
+from cv_bridge import CvBridge
+
+# ==========================================
+# LOGICA MATEMATICA EKF (Invariata)
+# ==========================================
+def wrap_angle(angle):
+    return (angle + np.pi) % (2 * np.pi) - np.pi
+
+class AsynchronousEKF:
+    def __init__(self):
+        self.mu = np.zeros(3)  
+        self.P = np.diag([0.1, 0.1, 0.1]) 
+        self.landmark_id_to_idx = {}
+        self.R_meas = np.diag([0.5, 0.1])           
+        self.Q_motion = np.diag([0.05, 0.05, 0.02]) 
+
+    def predict(self, v, omega, dt):
+        theta = self.mu[2]
+        N = len(self.mu)
+        F = np.eye(N)
+        F[0, 2] = -v * np.sin(theta) * dt
+        F[1, 2] =  v * np.cos(theta) * dt
+        self.mu[0] += v * np.cos(theta) * dt
+        self.mu[1] += v * np.sin(theta) * dt
+        self.mu[2] = wrap_angle(theta + omega * dt)
+        Q = np.zeros((N, N))
+        Q[:3, :3] = self.Q_motion * dt
+        self.P = F @ self.P @ F.T + Q
+
+    def update(self, qr_id, r_meas, b_meas):
+        if qr_id not in self.landmark_id_to_idx:
+            self.initialize_landmark(qr_id, r_meas, b_meas)
+        else:
+            self.correct_pose(qr_id, r_meas, b_meas)
+
+    def initialize_landmark(self, qr_id, r, b):
+        rx, ry, rth = self.mu[:3]
+        lx = rx + r * np.cos(rth + b)
+        ly = ry + r * np.sin(rth + b)
+        self.mu = np.concatenate((self.mu, [lx, ly]))
+        self.landmark_id_to_idx[qr_id] = len(self.mu) - 2
+        old_dim = len(self.P)
+        new_P = np.eye(old_dim + 2) * 100.0 
+        new_P[:old_dim, :old_dim] = self.P   
+        self.P = new_P
+
+    def correct_pose(self, qr_id, r_meas, b_meas):
+        idx = self.landmark_id_to_idx[qr_id]
+        rx, ry, rth = self.mu[:3]
+        lx, ly = self.mu[idx : idx+2]
+        dx = lx - rx
+        dy = ly - ry
+        q = dx**2 + dy**2
+        r_pred = np.sqrt(q)
+        b_pred = wrap_angle(np.arctan2(dy, dx) - rth)
+        y_res = np.array([r_meas - r_pred, wrap_angle(b_meas - b_pred)])
+        H = np.zeros((2, len(self.mu)))
+        H[0, 0] = -dx/r_pred; H[0, 1] = -dy/r_pred; H[0, 2] = 0
+        H[1, 0] =  dy/q;      H[1, 1] = -dx/q;      H[1, 2] = -1
+        H[0, idx] =  dx/r_pred; H[0, idx+1] =  dy/r_pred
+        H[1, idx] = -dy/q;      H[1, idx+1] =  dx/q
+        S = H @ self.P @ H.T + self.R_meas
+        try:
+            K = self.P @ H.T @ np.linalg.inv(S)
+        except np.linalg.LinAlgError:
+            return 
+        self.mu = self.mu + K @ y_res
+        self.mu[2] = wrap_angle(self.mu[2])
+        self.P = (np.eye(len(self.mu)) - K @ H) @ self.P
+
+
+# ==========================================
+# 2. NODO ROS2
+# ==========================================
+class RealRobotSLAMNode(Node):
+    def __init__(self):
+        super().__init__('ekf_slam_real')
+        
+        # --- PARAMETRI ---
+        self.QR_REAL_SIDE = 0.1838477631    
+        self.ROBOT_FRAME = 'base_link'   
+        
+        self.ekf = AsynchronousEKF()
+        self.cv_bridge = CvBridge()
+        self.detector = cv2.QRCodeDetector()
+        
+        half = self.QR_REAL_SIDE / 2.0
+        self.obj_points = np.array([
+            [-half,  half, 0], 
+            [ half,  half, 0], 
+            [ half, -half, 0], 
+            [-half, -half, 0]
+        ], dtype=np.float32)
+
+        self.camera_matrix = None
+        self.dist_coeffs = None
+        self.last_time = self.get_clock().now()
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+        # --- SUBSCRIBERS ---
+        self.create_subscription(CameraInfo, '/camera/color/camera_info', self.cb_cam_info, 10)
+        self.create_subscription(Image, '/camera/color/image_raw', self.cb_image, qos_profile_sensor_data)
+        self.create_subscription(Odometry, '/odom', self.cb_odom, 10)
+
+        # --- PUBLISHERS ---
+        self.pub_pose = self.create_publisher(PoseWithCovarianceStamped, '/slam_pose', 10)
+        self.pub_markers = self.create_publisher(MarkerArray, '/slam_landmarks', 10)
+        
+        # ### ESTETICA: Publisher per la traiettoria
+        self.pub_path = self.create_publisher(Path, '/slam_path', 10)
+        self.path_msg = Path()
+        self.path_msg.header.frame_id = "map"
+
+        self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
+
+        self.get_logger().info("SLAM Node Avviato - Estetica RViz attivata!")
+
+    def cb_cam_info(self, msg): 
+        if self.camera_matrix is None:
+            self.camera_matrix = np.array(msg.k).reshape((3, 3))
+            self.dist_coeffs = np.array(msg.d)
+
+    def cb_odom(self, msg):
+        curr_time = self.get_clock().now()
+        dt = (curr_time - self.last_time).nanoseconds / 1e9
+        self.last_time = curr_time
+        if dt <= 0: return
+
+        v = msg.twist.twist.linear.x
+        omega = msg.twist.twist.angular.z
+
+        self.ekf.predict(v, omega, dt)
+        self.publish_results()
+
+    def cb_image(self, msg):
+        if self.camera_matrix is None: return
+        camera_frame_id = msg.header.frame_id
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                self.ROBOT_FRAME, camera_frame_id, rclpy.time.Time())   
+        except TransformException: return 
+
+        try:
+            frame = self.cv_bridge.imgmsg_to_cv2(msg, "bgr8")
+        except: return
+
+        ret, decoded_info, corners, _ = self.detector.detectAndDecodeMulti(frame)
+        if not ret or corners is None: return 
+
+        for s, points in zip(decoded_info, corners):
+            if not s or not s.isdigit(): continue
+            qr_id = int(s)
+            
+            success, rvec, tvec = cv2.solvePnP(
+                self.obj_points, points, self.camera_matrix, self.dist_coeffs
+            )
+
+            if success:
+                p_cam = PointStamped()
+                p_cam.header.frame_id = camera_frame_id
+                p_cam.header.stamp = msg.header.stamp
+                p_cam.point.x = float(tvec[0][0])
+                p_cam.point.y = float(tvec[1][0])
+                p_cam.point.z = float(tvec[2][0])
+
+                try:
+                    p_robot = tf2_geometry_msgs.do_transform_point(p_cam, transform)
+                except: continue
+
+                rx = p_robot.point.x
+                ry = p_robot.point.y
+                r_meas = np.sqrt(rx**2 + ry**2)
+                b_meas = np.arctan2(ry, rx)
+
+                self.ekf.update(qr_id, r_meas, b_meas)
+
+    def publish_results(self):
+        curr_time = self.get_clock().now().to_msg()
+        
+        # 1. Pubblica Posa Corrente
+        p = PoseWithCovarianceStamped()
+        p.header.stamp = curr_time
+        p.header.frame_id = "map"
+        x, y, th = self.ekf.mu[:3]
+        p.pose.pose.position.x = x
+        p.pose.pose.position.y = y
+        q = quaternion_from_euler(0, 0, th)
+        p.pose.pose.orientation.x = q[0]
+        p.pose.pose.orientation.y = q[1]
+        p.pose.pose.orientation.z = q[2]
+        p.pose.pose.orientation.w = q[3]
+        self.pub_pose.publish(p)
+
+        # 2. Pubblica TF map -> base_link
+        t = TransformStamped()
+        t.header.stamp = curr_time
+        t.header.frame_id = "map"
+        t.child_frame_id = self.ROBOT_FRAME
+        t.transform.translation.x = x
+        t.transform.translation.y = y
+        t.transform.rotation = p.pose.pose.orientation
+        self.tf_broadcaster.sendTransform(t)
+
+        # ### ESTETICA: 3. Pubblica Traiettoria (Path)
+        pose_stamped = PoseStamped()
+        pose_stamped.header = p.header
+        pose_stamped.pose = p.pose.pose
+        self.path_msg.poses.append(pose_stamped)
+        self.pub_path.publish(self.path_msg)
+
+        # ### ESTETICA: 4. Pubblica Landmarks con TESTO
+        ma = MarkerArray()
+        for qr_id, idx in self.ekf.landmark_id_to_idx.items():
+            lx, ly = self.ekf.mu[idx], self.ekf.mu[idx+1]
+            
+            # A. Il Cubo (Landmark fisico)
+            m_cube = Marker()
+            m_cube.header.frame_id = "map"
+            m_cube.header.stamp = curr_time
+            m_cube.ns = "qr_shapes"      # Namespace diverso per le forme
+            m_cube.id = qr_id
+            m_cube.type = Marker.CUBE
+            m_cube.action = Marker.ADD
+            m_cube.pose.position.x = lx
+            m_cube.pose.position.y = ly
+            m_cube.pose.position.z = 0.2
+            m_cube.scale.x = 0.15; m_cube.scale.y = 0.15; m_cube.scale.z = 0.15
+            m_cube.color.a = 1.0; m_cube.color.r = 0.0; m_cube.color.g = 1.0; m_cube.color.b = 0.0 # Verde
+            ma.markers.append(m_cube)
+
+            # B. Il Testo (ID sopra il cubo)
+            m_text = Marker()
+            m_text.header.frame_id = "map"
+            m_text.header.stamp = curr_time
+            m_text.ns = "qr_names"       # Namespace diverso per i testi
+            m_text.id = qr_id
+            m_text.type = Marker.TEXT_VIEW_FACING
+            m_text.action = Marker.ADD
+            m_text.text = f"ID: {qr_id}" # La scritta che vedrai
+            m_text.pose.position.x = lx
+            m_text.pose.position.y = ly
+            m_text.pose.position.z = 0.5 # 30cm sopra il cubo
+            m_text.scale.z = 0.2         # Grandezza del testo
+            m_text.color.a = 1.0; m_text.color.r = 1.0; m_text.color.g = 1.0; m_text.color.b = 1.0 # Bianco
+            ma.markers.append(m_text)
+
+        self.pub_markers.publish(ma)
+
+def main():
+    rclpy.init()
+    node = RealRobotSLAMNode()
+    rclpy.spin(node)
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

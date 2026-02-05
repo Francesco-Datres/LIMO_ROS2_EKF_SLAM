@@ -1,0 +1,26 @@
+[0.603s] Invoking command in '/home/francesco/LIMO_prj/src/mio_primo_pkg': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data
+[0.836s] running egg_info
+[0.836s] writing ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/PKG-INFO
+[0.837s] writing dependency_links to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/dependency_links.txt
+[0.837s] writing entry points to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/entry_points.txt
+[0.837s] writing requirements to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/requires.txt
+[0.838s] writing top-level names to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/top_level.txt
+[0.840s] reading manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[0.840s] writing manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[0.841s] running build
+[0.841s] running build_py
+[0.841s] copying mio_primo_pkg/simulatore.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[0.841s] running install
+[0.841s] running install_lib
+[0.842s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/simulatore.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[0.843s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/simulatore.py to simulatore.cpython-310.pyc
+[0.844s] running install_data
+[0.844s] copying package.xml -> /home/francesco/LIMO_prj/install/mio_primo_pkg/share/mio_primo_pkg
+[0.844s] running install_egg_info
+[0.845s] removing '/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[0.846s] Copying ../../build/mio_primo_pkg/mio_primo_pkg.egg-info to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info
+[0.847s] running install_scripts
+[0.865s] Installing avvia_simulazione script to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/mio_primo_pkg
+[0.866s] Installing esegui_prova script to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/mio_primo_pkg
+[0.866s] writing list of installed files to '/home/francesco/LIMO_prj/build/mio_primo_pkg/install.log'
+[0.887s] Invoked command in '/home/francesco/LIMO_prj/src/mio_primo_pkg' returned '0': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data

@@ -1,0 +1,52 @@
+ifconfig -> wla0 trovo l'indirizzo ip della LIMO
+
+ssh agilex@10.93.156.136
+password agx i permettte di collegarmi via ssh
+
+Avvio più terminali con i seguenti comandi:
+
+ros2 launch limo_bringup limo_start.launch.py
+ros2 launch orbbec_camera dabai.launch.py
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+poi ne avvio uno quando faccio partire la simulzaioine con
+
+#per registrare rosabg
+ros2 bag record -o ROSbag_Con_TF /camera/color/image_raw /camera/color/camera_info /odom /tf /tf_static
+
+Mi crea quindi la cartella con ROSbag_Con_TF che poi mi passo via ssh tramite il comando (da terminale da pc):
+scp -r agilex@master:/home/agilex/ROSbag_Con_TF ~/Desktop/~
+
+
+
+#mi collego alla camera e vedo in tempo reale cosa vede la simulazione
+ros2 run rqt_image_view rqt_image_view
+
+# Avvio la piattaforma dove visualizzo mappa e landmarks
+rviz2
+
+#Faccio partire la bag in loop e con il clock di sistema
+ros2 bag play ROSbag1 --clock -l 
+
+#faccio partire il codice di simulazione e gli dico di usare il tempo si simulazione della rosabg
+python3 simulatore_real.py --ros-args -p use_sim_time:=true 
+
+#oppure tramite ros
+ros2 run mio_primo_pkg avvia_nodo 
+
+
+
+# Output possibili da registrare nella rosbag
+/camera/color/camera_info
+/camera/color/image_raw
+/clicked_point
+/clock
+/goal_pose
+/initialpose
+/odom
+/parameter_events
+/rosout
+/slam_landmarks
+/slam_pose
+/tf
+/tf_static 

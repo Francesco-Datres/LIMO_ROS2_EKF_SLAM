@@ -1,0 +1,24 @@
+[0.609s] Invoking command in '/home/francesco/LIMO_prj/src/mio_primo_pkg': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data
+[0.844s] running egg_info
+[0.844s] writing ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/PKG-INFO
+[0.845s] writing dependency_links to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/dependency_links.txt
+[0.846s] writing entry points to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/entry_points.txt
+[0.846s] writing requirements to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/requires.txt
+[0.846s] writing top-level names to ../../build/mio_primo_pkg/mio_primo_pkg.egg-info/top_level.txt
+[0.848s] reading manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[0.849s] writing manifest file '../../build/mio_primo_pkg/mio_primo_pkg.egg-info/SOURCES.txt'
+[0.849s] running build
+[0.849s] running build_py
+[0.850s] copying mio_primo_pkg/nodo_prova.py -> /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg
+[0.850s] running install
+[0.850s] running install_lib
+[0.851s] copying /home/francesco/LIMO_prj/build/mio_primo_pkg/build/lib/mio_primo_pkg/nodo_prova.py -> /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg
+[0.852s] byte-compiling /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg/nodo_prova.py to nodo_prova.cpython-310.pyc
+[0.852s] running install_data
+[0.852s] running install_egg_info
+[0.854s] removing '/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[0.854s] Copying ../../build/mio_primo_pkg/mio_primo_pkg.egg-info to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages/mio_primo_pkg-0.0.0-py3.10.egg-info
+[0.855s] running install_scripts
+[0.874s] Installing esegui_prova script to /home/francesco/LIMO_prj/install/mio_primo_pkg/lib/mio_primo_pkg
+[0.874s] writing list of installed files to '/home/francesco/LIMO_prj/build/mio_primo_pkg/install.log'
+[0.894s] Invoked command in '/home/francesco/LIMO_prj/src/mio_primo_pkg' returned '0': PYTHONPATH=/home/francesco/LIMO_prj/build/mio_primo_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/francesco/LIMO_prj/install/mio_primo_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/mio_primo_pkg build --build-base /home/francesco/LIMO_prj/build/mio_primo_pkg/build install --record /home/francesco/LIMO_prj/build/mio_primo_pkg/install.log --single-version-externally-managed install_data
