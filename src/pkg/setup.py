@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'mio_primo_pkg'
+package_name = 'pgk'
 
 setup(
     name=package_name,
@@ -24,9 +24,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-        'esegui_prova = mio_primo_pkg.nodo_prova:main',
-        'avvia_simulazione = mio_primo_pkg.simulatore:main',
-        'avvia_nodo = mio_primo_pkg.simulatore_real:main',
+        'esegui_prova = pgk.nodo_prova:main',
+        'avvia_simulazione = pgk.simulatore:main',
+        'avvia_nodo = pgk.Real_Simulation:main',
         ],
     },
 )

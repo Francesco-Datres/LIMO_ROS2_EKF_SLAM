@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 import rclpy
 from rclpy.node import Node
@@ -25,7 +24,7 @@ import cv2
 from cv_bridge import CvBridge
 
 # ==========================================
-# LOGICA MATEMATICA EKF (Invariata)
+# LOGICA MATEMATICA EKF
 # ==========================================
 def wrap_angle(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
@@ -104,9 +103,9 @@ class RealRobotSLAMNode(Node):
         self.QR_REAL_SIDE = 0.1838477631    
         self.ROBOT_FRAME = 'base_link'   
         
-        self.ekf = AsynchronousEKF()
-        self.cv_bridge = CvBridge()
-        self.detector = cv2.QRCodeDetector()
+        self.ekf = AsynchronousEKF() 
+        self.cv_bridge = CvBridge() # Per convertire tra ROS Image e OpenCV Image
+        self.detector = cv2.QRCodeDetector() # Per rilevare e decodificare i QR code
         
         half = self.QR_REAL_SIDE / 2.0
         self.obj_points = np.array([
@@ -120,8 +119,8 @@ class RealRobotSLAMNode(Node):
         self.dist_coeffs = None
         self.last_time = self.get_clock().now()
 
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.tf_buffer = Buffer() # Per memorizzare le trasformazioni
+        self.tf_listener = TransformListener(self.tf_buffer, self) # Per ascoltare le trasformazioni
 
         # --- SUBSCRIBERS ---
         self.create_subscription(CameraInfo, '/camera/color/camera_info', self.cb_cam_info, 10)
@@ -132,7 +131,7 @@ class RealRobotSLAMNode(Node):
         self.pub_pose = self.create_publisher(PoseWithCovarianceStamped, '/slam_pose', 10)
         self.pub_markers = self.create_publisher(MarkerArray, '/slam_landmarks', 10)
         
-        # ### ESTETICA: Publisher per la traiettoria
+        # ESTETICA: Publisher per la traiettoria
         self.pub_path = self.create_publisher(Path, '/slam_path', 10)
         self.path_msg = Path()
         self.path_msg.header.frame_id = "map"
@@ -141,12 +140,12 @@ class RealRobotSLAMNode(Node):
 
         self.get_logger().info("SLAM Node Avviato - Estetica RViz attivata!")
 
-    def cb_cam_info(self, msg): 
+    def cb_cam_info(self, msg): # Riceve la calibrazione della camera
         if self.camera_matrix is None:
             self.camera_matrix = np.array(msg.k).reshape((3, 3))
             self.dist_coeffs = np.array(msg.d)
 
-    def cb_odom(self, msg):
+    def cb_odom(self, msg): #Predizione EKF basata sull'odometria
         curr_time = self.get_clock().now()
         dt = (curr_time - self.last_time).nanoseconds / 1e9
         self.last_time = curr_time
@@ -158,7 +157,7 @@ class RealRobotSLAMNode(Node):
         self.ekf.predict(v, omega, dt)
         self.publish_results()
 
-    def cb_image(self, msg):
+    def cb_image(self, msg): # Aggiornamento EKF basato sulla visione (QR code)
         if self.camera_matrix is None: return
         camera_frame_id = msg.header.frame_id
         try:
@@ -170,7 +169,7 @@ class RealRobotSLAMNode(Node):
             frame = self.cv_bridge.imgmsg_to_cv2(msg, "bgr8")
         except: return
 
-        ret, decoded_info, corners, _ = self.detector.detectAndDecodeMulti(frame)
+        ret, decoded_info, corners, _ = self.detector.detectAndDecodeMulti(frame) #cerco i QR code e prendo le info e i corners
         if not ret or corners is None: return 
 
         for s, points in zip(decoded_info, corners):
@@ -227,14 +226,14 @@ class RealRobotSLAMNode(Node):
         t.transform.rotation = p.pose.pose.orientation
         self.tf_broadcaster.sendTransform(t)
 
-        # ### ESTETICA: 3. Pubblica Traiettoria (Path)
+        # ESTETICA: 3. Pubblica Traiettoria (Path)
         pose_stamped = PoseStamped()
         pose_stamped.header = p.header
         pose_stamped.pose = p.pose.pose
         self.path_msg.poses.append(pose_stamped)
         self.pub_path.publish(self.path_msg)
 
-        # ### ESTETICA: 4. Pubblica Landmarks con TESTO
+        # ESTETICA: 4. Pubblica Landmarks con TESTO
         ma = MarkerArray()
         for qr_id, idx in self.ekf.landmark_id_to_idx.items():
             lx, ly = self.ekf.mu[idx], self.ekf.mu[idx+1]
@@ -243,7 +242,7 @@ class RealRobotSLAMNode(Node):
             m_cube = Marker()
             m_cube.header.frame_id = "map"
             m_cube.header.stamp = curr_time
-            m_cube.ns = "qr_shapes"      # Namespace diverso per le forme
+            m_cube.ns = "qr_shapes"
             m_cube.id = qr_id
             m_cube.type = Marker.CUBE
             m_cube.action = Marker.ADD
@@ -258,15 +257,15 @@ class RealRobotSLAMNode(Node):
             m_text = Marker()
             m_text.header.frame_id = "map"
             m_text.header.stamp = curr_time
-            m_text.ns = "qr_names"       # Namespace diverso per i testi
+            m_text.ns = "qr_names" 
             m_text.id = qr_id
             m_text.type = Marker.TEXT_VIEW_FACING
             m_text.action = Marker.ADD
-            m_text.text = f"ID: {qr_id}" # La scritta che vedrai
+            m_text.text = f"ID: {qr_id}"
             m_text.pose.position.x = lx
             m_text.pose.position.y = ly
-            m_text.pose.position.z = 0.5 # 30cm sopra il cubo
-            m_text.scale.z = 0.2         # Grandezza del testo
+            m_text.pose.position.z = 0.5 
+            m_text.scale.z = 0.2       
             m_text.color.a = 1.0; m_text.color.r = 1.0; m_text.color.g = 1.0; m_text.color.b = 1.0 # Bianco
             ma.markers.append(m_text)
 

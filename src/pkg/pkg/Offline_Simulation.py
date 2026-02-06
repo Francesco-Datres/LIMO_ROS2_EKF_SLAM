@@ -1,11 +1,8 @@
 import matplotlib
-matplotlib.use('TkAgg')  #mi permette di usare la GUI Tkinter per la finestra grafica
+matplotlib.use('TkAgg') 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ==========================================
-# CONFIGURAZIONE REALE
-# ==========================================
 # Frequenze simulate
 """
 Genero due frequenze diverse per IMU e Camera per simulare un EKF asincrono. In particolare
@@ -27,26 +24,22 @@ AREA_UPPER_BOUND = 10.0
 # UTILITIES MATEMATICHE
 # ==========================================
 def wrap_angle(angle):
-    return (angle + np.pi) % (2 * np.pi) - np.pi # Wrap angle to [-pi, pi]
+    return (angle + np.pi) % (2 * np.pi) - np.pi 
 
 # ==========================================
 # EKF ASINCRONO
 # ==========================================
 class AsynchronousEKF:
     def __init__(self):
-        # dt non è più un parametro fisso, lo passo ad ogni predict
-        self.mu = np.zeros(4)                   # [x, y, v, theta] inizializzato a zero
+        self.mu = np.zeros(4)                    # [x, y, v, theta] inizializzato a zero
         self.P = np.diag([0.1, 0.1, 0.01, 0.1])  # matrice di covarianza iniziale
-        self.landmark_id_to_idx = {}            # Mappa ID QR -> Indice nel vettore stato
+        self.landmark_id_to_idx = {}             # Mappa ID QR -> Indice nel vettore stato
         
         # Rumori
-        self.Q_base = np.diag([0.01, 0.01, 0.1, 0.01]) # Rumore IMU, assumo che la velocità è più rumorosa
+        self.Q_base = np.diag([0.01, 0.01, 0.01, 0.01]) # Rumore IMU
         self.R_meas = np.diag([0.3, 0.05])             # Rumore Camera: [distanza, angolo]
 
     def predict(self, imu_accel, imu_omega, dt): #passo dt come argomento
-        """
-        PREDICT: Viene chiamata ad alta frequenza, ogni volta che ricevo un dato IMU
-        """
         x, y, v, theta = self.mu[:4]
 
         # 1. Modello Fisico (Predizione Stato)
@@ -73,10 +66,7 @@ class AsynchronousEKF:
         self.P = F @ self.P @ F.T + Q
 
     def update(self, qr_id, r_meas, b_meas):
-        """
-        UPDATE: Viene chiamata a bassa frequenza (solo quando la camera vede un QR)
-        """
-        # 1. DATA ASSOCIATION DIRETTA (ID CERTO)
+        # 1. dato un QR code osservato, controlliamo se è nuovo o noto
         if qr_id not in self.landmark_id_to_idx:
             self.initialize_landmark(qr_id, r_meas, b_meas)
         else:
@@ -137,7 +127,7 @@ class QRCamera:
         self.fov = np.deg2rad(60)
         self.focal_length = self.img_width / (2 * np.tan(self.fov / 2))
         
-        # Qui usiamo la dimensione del QR CODE invece dell'altezza oggetto generico
+        # Parametri QR
         self.QR_SIDE = REAL_QR_SIDE 
         self.max_dist = 5.0
 
@@ -179,11 +169,11 @@ class QRCamera:
             w_pixel += np.random.normal(0, 1) 
             x_center += np.random.normal(0, 2)
 
-            # --- STIMA INVERSA (Quello che farai sul robot vero) ---
+            # --- STIMA INVERSA  ---
             # Da pixel a metri
-            if w_pixel < 1: w_pixel = 1
+            if w_pixel < 1: continue
             
-            # FORMULA CHIAVE: Ricavo distanza sapendo la dimensione del QR
+            # Ricavo distanza sapendo la dimensione del QR
             r_est = (self.focal_length * self.QR_SIDE) / w_pixel
             b_est = np.arctan((u_c - x_center) / self.focal_length)
 
@@ -192,7 +182,7 @@ class QRCamera:
         return observations
 
 # ==========================================
-# CLASSI SUPPORTO (Fisica e Input)
+# CLASSI SUPPORTO 
 # ==========================================
 class Unicycle:
     def __init__(self, dt):
@@ -288,9 +278,6 @@ class SimulationAsync:
         while True:
             if not plt.fignum_exists(self.fig.number): break
             
-            # =========================================================
-            # 1. FISICA DEL MONDO REALE (Avviene sempre, dt piccolo)
-            # =========================================================
             self.uni.step() # Il robot si muove fisicamente
             self.tick_counter += 1
             
@@ -324,7 +311,7 @@ class SimulationAsync:
                     self.ekf.update(qr_id, r_meas, b_meas)
 
             # =========================================================
-            # 4. GRAFICA (Aggiorniamo ogni tanto per fluidità)
+            # 4. GRAFICA 
             # =========================================================
             if self.tick_counter % 5 == 0: # 20 FPS video circa
                 self.robot_body.set_data([self.uni.state[0]], [self.uni.state[1]])
