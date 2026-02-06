@@ -1,4 +1,3 @@
-```markdown
 # EKF SLAM con QR Code su Robot LIMO (ROS 2)
 
 Questo repository contiene il codice sviluppato per il progetto di Sistemi e Sensori per la Robotica.
@@ -10,7 +9,7 @@ Il sistema implementa un algoritmo **Extended Kalman Filter (EKF)** per la local
 * **Visualizzazione:** Integrazione completa con RViz (Mappa, Traiettoria, Marker 3D).
 ---
 
-## 🚀 Istruzioni per l'uso
+## Istruzioni per l'uso
 
 Il workflow è diviso in due fasi: **Registrazione** (sul robot) ed **Esecuzione** (sul PC).
 
@@ -45,7 +44,7 @@ python3 src/simulatore_real.py --ros-args -p use_sim_time:=true
 
 ---
 
-## 📊 Visualizzazione (Topic ROS)
+## Visualizzazione (Topic ROS)
 
 Su RViz puoi sottoscriverti ai seguenti topic per vedere i risultati:
 
